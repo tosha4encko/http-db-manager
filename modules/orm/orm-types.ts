@@ -1,10 +1,10 @@
 import { Column, Operation, Row, Table } from "./data-types";
 
 export interface IORM {
-  tablesORM: ITableORM;
-  columnsORM: IColumnsORM;
-  rowORM: IRowORM;
-  query: (table: Table) => IQuery;
+  tablesORM: () => ITableORM;
+  columnsORM: () => IColumnsORM;
+  rowORM: () => IRowORM;
+  query: () => IQuery;
 }
 
 export interface IColumnsORM {
@@ -35,11 +35,11 @@ export interface IQuery {
   terms: Term[];
   addTerm(term: Term | null): void;
 
-  build(intent: "table"): string;
-  build(intent: "columns", table: Table): string;
-  build(intetn: "data", table: Table): string;
+  run(intent: "table"): Table[];
+  run(intent: "columns", table: Table): Column[];
+  run(intetn: "data", table: Table): object[];
 
-  len(intent: "table"): string;
-  len(intent: "columns", table: Table): string;
-  len(intetn: "data", table: Table): string;
+  len(intent: "table"): number;
+  len(intent: "columns", table: Table): number;
+  len(intetn: "data", table: Table): number;
 }

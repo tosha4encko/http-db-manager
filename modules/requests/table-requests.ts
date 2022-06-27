@@ -1,6 +1,3 @@
-import { IQuery } from "../orm";
-import { Request } from "express";
-import { Query } from "../orm/query";
 import { di } from "di";
 import { Methods, RequestContext } from "./requests";
 import { PaginationFilter } from "./filters";
@@ -11,12 +8,12 @@ const app = express();
 const TableRequestContext = new RequestContext("tables", [PaginationFilter]);
 
 TableRequestContext.registration(Methods.get, (request) => {
-  const query = new Query();
+  const query = new di.orm.query();
   TableRequestContext.applyFilters(request, query);
 
   return {
     status: 200,
-    message: di.dbDriver.run(query.build("table")),
+    data: query.run("table"),
   };
 });
 

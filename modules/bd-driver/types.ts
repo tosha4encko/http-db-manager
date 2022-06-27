@@ -1,4 +1,4 @@
-import { Table } from "orm/types";
+import { Table } from "orm/data-types";
 
 export interface IDBDriver {
   run(sql: string): Promise<any>;

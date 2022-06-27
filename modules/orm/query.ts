@@ -46,7 +46,7 @@ export class Query implements IQuery {
     }
   }
 
-  build(intent: "table" | "columns" | "data") {
+  run(intent: "table" | "columns" | "data") {
     let from: string;
     if (intent === "data") {
       from = `FROM ${this._table.scheme}.${this._table.name}`;
@@ -58,13 +58,13 @@ export class Query implements IQuery {
       from = fromTablesSQL();
     }
 
-    return `
+    return di.dbDriver.runSync(`
       SELECT * ${from}
       WHERE ${this._terms.map((term) => term.join(" ")).join(" & ")}
       ORDER BY ${this._order[1]} ${this._order[0]} 
       LIMIT ${this._pageSize}
       OFFSET ${this._page * this._pageSize - this._pageSize}
-    `;
+    `);
   }
 
   len(intent: "table" | "columns" | "data") {
@@ -78,9 +78,9 @@ export class Query implements IQuery {
     if (intent === "table") {
       from = fromTablesSQL();
     }
-    return `
+    return di.dbDriver.runSync(`
       SELECT count(*) ${from}
       WHERE ${this._terms.map((term) => term.join(" ")).join(" & ")}
-    `;
+    `);
   }
 }

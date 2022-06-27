@@ -5,15 +5,16 @@ import {
   buildCreateTableSQL,
   buildDeleteColumnSQL,
   buildDeleteTableSQL,
-  Query,
 } from "./build-sql";
 
 import { di } from "di";
 import { IColumnsORM, IQuery, IRowORM, ITableORM } from "./orm-types";
 import { Column, Table } from "./data-types";
+import { Query } from "./query";
+
 const { runSync, atomic } = di.dbDriver;
 
-export const tablesORM: ITableORM = {
+export class TablesORM implements ITableORM {
   createTable(table) {
     return atomic(() => {
       runSync(buildCreateTableSQL(table));
@@ -22,31 +23,31 @@ export const tablesORM: ITableORM = {
 
       return { ...table };
     });
-  },
+  }
   deleteTable(table) {
     runSync(buildDeleteTableSQL(table));
-  },
+  }
   getTables(query) {
-    return runSync(query.build("table")) as Table[];
-  },
-} as const;
+    return query.run("table") as Table[];
+  }
+}
 
-export const columnsORM: IColumnsORM = {
+export class ColumnsORM implements IColumnsORM {
   createColumn(column: Column) {
     runSync(buildAddColumnSQL(column));
     return { ...column, table: { ...column.table } };
-  },
+  }
   deleteColumn(column: Column) {
     runSync(buildDeleteColumnSQL(column));
-  },
+  }
   getColumns(table: Table, query: IQuery) {
-    return runSync(query.build("columns", table));
-  },
-};
+    return runSync(query.run("columns", table));
+  }
+}
 
 di.registration("orm", {
-  columnsORM,
-  tablesORM,
+  columnsORM: () => new ColumnsORM(),
+  tablesORM: () => new TablesORM(),
   rowORM: {} as IRowORM,
-  query: (table) => new Query(table),
+  query: (args) => new Query(...args),
 });
